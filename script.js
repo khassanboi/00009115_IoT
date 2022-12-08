@@ -1,3 +1,4 @@
+//Firebase configurations to connect the realtime database to the web applciation
 const firebaseConfig = {
     apiKey: "AIzaSyAdw2vd-PlfxyFJdPaslCx_TlQigTrOl_0",
     authDomain: "greenhouse-i.firebaseapp.com",
@@ -7,28 +8,36 @@ const firebaseConfig = {
     messagingSenderId: "433436925188",
     appId: "1:433436925188:web:d62b4e0ef99aed150f8451",
     measurementId: "G-NXF1NGF5QP"
-  };
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
+};
 
+// Initializing Firebase
+firebase.initializeApp(firebaseConfig);
+
+//jQuery waiting for the document to be ready
 $(document).ready(function(){
     var database = firebase.database();
+
+	//creating global variable with initial values
 	var humidity = 0;
 	var temp = 0;
 	var light = 900;
 
+	//starting communication with Firebase
 	database.ref().on("value", function(snap){
-		humidity = snap.val().humidity;
-		temp = snap.val().temperature;
-		light = snap.val().light;
+		humidity = snap.val().humidity;   //writing humidity to database
+		temp = snap.val().temperature;    //writing temperature to database
+		light = snap.val().light;         //writing light level to database
 
 		window.feed = function(callback) {
 			var tick = {};
 			tick.plot0 = Math.ceil(350 + (Math.random() * 500));
 			callback(JSON.stringify(tick));
-		  };
-		   
-		  var myTemperature = {
+		};
+
+		//using JavaScript plugin called Zingchart for plotting gauge charts
+		
+		//creating  configurations for a new gauge to display TEMPERATURE
+		var myTemperature = {
 			type: "gauge",
 			globals: {
 			  fontSize: 25
@@ -40,7 +49,7 @@ $(document).ready(function(){
 			  size: '100%',
 			  valueBox: {
 				placement: 'center',
-				text: '%v', //default
+				text: '%v',
 				fontSize: 35,
 				rules: [{
 					rule: '%v <= 20',
@@ -78,7 +87,6 @@ $(document).ready(function(){
 				  offsetX: 2
 				}]
 			  },
-			  labels: ['0', '50'],
 			  ring: {
 				size: 50,
 				rules: [{
@@ -97,7 +105,7 @@ $(document).ready(function(){
 			  }
 			},
 			series: [{
-			  values: [temp], // starting value
+			  values: [temp], // temperature value that comes from Firebase
 			  backgroundColor: 'black',
 			  indicator: [10, 10, 10, 10, 0.75],
 			  animation: {
@@ -107,16 +115,10 @@ $(document).ready(function(){
 				speed: 900
 			  },
 			}]
-		  };
+		};
 		   
-		  zingchart.render({
-			id: 'temp',
-			data: myTemperature,
-			height: 500,
-			width: '100%'
-		  });
-		
-		  var myHumidity = {
+		//creating  configurations for a new gauge to display HUMIDITY
+		var myHumidity = {
 			type: "gauge",
 			globals: {
 			  fontSize: 25
@@ -166,7 +168,6 @@ $(document).ready(function(){
 				  offsetX: 2
 				}]
 			  },
-			  labels: ['0', '50'],
 			  ring: {
 				size: 50,
 				rules: [{
@@ -185,7 +186,7 @@ $(document).ready(function(){
 			  }
 			},
 			series: [{
-			  values: [parseInt(humidity)], // starting value
+			  values: [parseInt(humidity)], // humidity value that comes from Firebase
 			  backgroundColor: 'black',
 			  indicator: [10, 10, 10, 10, 0.75],
 			  animation: {
@@ -195,16 +196,10 @@ $(document).ready(function(){
 				speed: 900
 			  },
 			}]
-		  };
+		};
 		   
-		  zingchart.render({
-			id: 'humidity',
-			data: myHumidity,
-			height: 500,
-			width: '100%'
-		  });
-		
-		  var myLight = {
+		//creating  configurations for a new gauge to display LIGHT LEVEL
+		var myLight = {
 			type: "gauge",
 			globals: {
 			  fontSize: 25
@@ -264,7 +259,7 @@ $(document).ready(function(){
 			  }
 			},
 			series: [{
-			  values: [light], // starting value
+			  values: [light], // light level value that comes from Firebase
 			  backgroundColor: 'black',
 			  indicator: [10, 10, 10, 10, 0.75],
 			  animation: {
@@ -274,54 +269,73 @@ $(document).ready(function(){
 				speed: 900
 			  },
 			}]
-		  };
+		};
+
+		//renderring three gauge charts with configurations above
+		zingchart.render({
+			id: 'temp',
+			data: myTemperature,
+			height: 500,
+			width: '100%'
+		});
 		   
-		  zingchart.render({
+		zingchart.render({
 			id: 'light',
 			data: myLight,
 			height: 500,
 			width: '100%'
-		  });
-		
+		});
+
+		zingchart.render({
+			id: 'humidity',
+			data: myHumidity,
+			height: 500,
+			width: '100%'
+		});
 	});
 
 
+	//opening window function
+    $("#openWindow").click(function(){ //when button clicked
+		var windowW = firebase.database().ref().child("window"); //
+		windowW.set("1"); //setting window to 1 which represents OPEN
+	})
 
-    $("#openWindow").click(function(){
+	//closing window function
+	$("#closeWindow").click(function(){ //when button clicked
 		var windowW = firebase.database().ref().child("window");
-		windowW.set("1");
+		windowW.set("0"); //setting window to 0 which represents CLOSED
 	})
 
-	$("#closeWindow").click(function(){
-		var windowW = firebase.database().ref().child("window");
-		windowW.set("0");
-	})
-
-	$("#turnLightOn").click(function(){
+	//turning LED on function
+	$("#turnLightOn").click(function(){ //when button clicked
 		var light = firebase.database().ref().child("LED");
-		light.set("1");
+		light.set("1"); //setting LED to 1 which represents ON
 	})
 
-	$("#turnLightOff").click(function(){
+	//turning LED off function
+	$("#turnLightOff").click(function(){ //when button clicked
 		var light = firebase.database().ref().child("LED");
-		light.set("0");
+		light.set("0"); //setting LED to 0 which represents OFF
 	})
 
-	$("#sendMessage").click(function(){
-		if($("#messageInput").val()) {
+	//sending message function
+	$("#sendMessage").click(function(){ //when button clicked
+		if($("#messageInput").val()) { //if message is not empty
 			var message = firebase.database().ref().child("message");
+			//setting message to inserted message which will be displayed on LCD
 			message.set($("#messageInput").val());
 
-		} else alert("Message cannot be empty!")
+		} else alert("Message cannot be empty!") //send alert if empty
 
 	})
 
-	$("#makeBuzz").click(function(){
-		if($("#buzzTimes").val() != 0) {
+	//sending buzz function
+	$("#makeBuzz").click(function(){ //when button clicked
+		if($("#buzzTimes").val() != 0) { //if buzz number is not 0
 			var buzz = firebase.database().ref().child("buzz");
+			//setting buzz to inserted number which makes the buzzer buzz as many times as requested
 			buzz.set($("#buzzTimes").val());
-
-		} else alert("Buzz times cannot be 0!")
-
+		} else alert("Buzz times cannot be 0!") //send alert if 0
 	})
 });

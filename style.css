@@ -28,14 +28,27 @@ a {
     font-family: sans-serif;
     padding: 10px 20px;
     border-radius: 20px;
+    transition: all linear 0.2s;
+}
+
+a:hover {
+    background-color: rgb(22, 22, 227);
 }
 
 a.on {
     background-color: rgb(24, 189, 24);
 }
 
+a.on:hover {
+    background-color: rgb(15, 132, 15);
+}
+
 a.off {
     background-color: rgb(223, 45, 45);
+}
+
+a.off:hover {
+    background-color: rgb(134, 20, 20);
 }
 
 .control {

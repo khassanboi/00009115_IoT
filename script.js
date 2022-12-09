@@ -326,6 +326,8 @@ $(document).ready(function(){
 			//setting message to inserted message which will be displayed on LCD
 			message.set($("#messageInput").val());
 
+			$('#messageInput').val(""); //clearing input value
+
 		} else alert("Message cannot be empty!") //send alert if empty
 
 	})
@@ -336,6 +338,9 @@ $(document).ready(function(){
 			var buzz = firebase.database().ref().child("buzz");
 			//setting buzz to inserted number which makes the buzzer buzz as many times as requested
 			buzz.set($("#buzzTimes").val());
+
+			$('#buzzTimes').val(""); //clearing input value
+
 		} else alert("Buzz times cannot be 0!") //send alert if 0
 	})
 });
